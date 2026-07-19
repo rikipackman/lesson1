@@ -26,19 +26,11 @@ function printCoursesToTerminal() {
 
 
 app.get("/", (req, res) => {
-  
   const responseText = courses
     .map((course, index) => `${index + 1}. ${course.name} - ${course.category}`)
     .join("\n") + "\n";
-    
-  res.send(responseText);
-});
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "Server is running successfully",
-    status: "online"
-  });
+  res.send(responseText);
 });
 
 
@@ -46,9 +38,81 @@ app.get("/courses", (req, res) => {
   res.json(courses);
 });
 
+app.get("/courses/filter", (req, res) => {
+  const categoryQuery = req.query.category;
+
+  if (categoryQuery) {
+    const filteredCourses = courses.filter(
+      (course) => course.category.toLowerCase() === categoryQuery.toLowerCase()
+    );
+    return res.json(filteredCourses);
+  }
+
+  res.json(courses);
+});
+
+app.put("/courses/:id", (req, res) => {
+  const courseId = Number(req.params.id);
+  const { name, category, targetAudience, description } = req.body;
+
+  const course = courses.find((item) => item.id === courseId);
+
+ 
+  if (!course) {
+    return res.status(404).json({ message: "Course not found" });
+  }
+
+ 
+  if (name) course.name = name;
+  if (category) course.category = category;
+  if (targetAudience) course.targetAudience = targetAudience;
+  if (description) course.description = description;
+
+  res.json({ message: "Course updated successfully", course });
+});
+app.post("/courses", (req, res) => {
+  const { name, category, targetAudience, description } = req.body;
+
+  if (!name || !category) {
+    return res.status(400).json({ message: "Name and Category are required" });
+  }
+
+  const newCourse = { name, category, targetAudience, description };
+  courses.push(newCourse);
+
+  res.status(201).json({ message: "Course added successfully", course: newCourse });
+});
 
 app.get("/students", (req, res) => {
   res.json(students);
+});
+
+
+app.delete("/courses/:id", (req, res) => {
+  const courseId = Number(req.params.id);
+
+  
+  const courseIndex = courses.findIndex((item) => item.id === courseId);
+
+  
+  if (courseIndex === -1) {
+    return res.status(404).json({ message: "Course not found" });
+  }
+
+
+  const deletedCourse = courses.splice(courseIndex, 1);
+
+  res.json({ message: "Course deleted successfully", course: deletedCourse[0] });
+});
+app.get("/students/:id", (req, res) => {
+  const studentId = Number(req.params.id);
+  const student = students.find((item) => item.id === studentId);
+
+  if (!student) {
+    return res.status(404).json({ message: "Student not found" });
+  }
+
+  return res.json(student);
 });
 
 app.listen(PORT, () => {
