@@ -13,6 +13,17 @@ export const getJsonCourses = (req, res) => {
   res.json(coursesService.fetchAllCourses());
 };
 
+export const getCourseById = (req, res) => {
+  const courseId = Number(req.params.id);
+  const course = coursesService.fetchAllCourses().find((item) => item.id === courseId);
+
+  if (!course) {
+    return res.status(404).json({ message: "Course not found" });
+  }
+
+  return res.json(course);
+};
+
 export const filterCourses = (req, res) => {
   const categoryQuery = req.query.category;
 

@@ -1,16 +1,36 @@
 import express from "express";
 import chalk from "chalk";
 import _ from "lodash";
-import { courses } from "./data/courses.js"; // נתיב מעודכן לתיקיית data
+import { courses } from "./data/courses.js";
 
-// ייבוא הראוטרים מהתיקייה החדשה
-import coursesRouter from "./routes/courses.js";
-import studentsRouter from "./routes/student.js";
+import coursesRouter from "./Routs/curses.js";
+import studentsRouter from "./Routs/student.js";
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 app.use(express.json());
+
+// Middleware לאימות ולתיעוד בקשות
+const authMiddleware = (req, res, next) => {
+  // 1. הדפסה לטרמינל עבור כל קריאה שנכנסת
+  console.log(`[LOG] Incoming request: ${req.method} ${req.url}`);
+
+  // 2. קבלת המפתח מה-Headers
+  const authKey = req.headers["auth-key"];
+  const VALID_KEY = "mySecret123"; // את יכולה לבחור איזה ערך שבא לך
+
+  // 3. אימות המפתח
+  if (authKey === VALID_KEY) {
+    next(); // המפתח תקין, ממשיכים לקונטרולר
+  } else {
+    // מפתח שגוי או חסר - מחזירים 401
+    res.status(401).json({ message: "Unauthorized: Invalid or missing auth-key" });
+  }
+};
+
+app.use(authMiddleware);
+
 
 // חיבור שכבת הנתיבים (Routes)
 app.use("/courses", coursesRouter);

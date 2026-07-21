@@ -1,4 +1,4 @@
-import { students } from "../students.js";
+import { students } from "../data/students.js";
 
 export const fetchAllStudents = () => {
   return students;
