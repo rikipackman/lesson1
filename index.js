@@ -1,6 +1,7 @@
 import express from "express";
 import chalk from "chalk";
 import _ from "lodash";
+import "dotenv/config";
 import { courses } from "./data/courses.js";
 
 import coursesRouter from "./Routs/curses.js";
@@ -8,6 +9,7 @@ import studentsRouter from "./Routs/student.js";
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
+const AUTH_KEY = process.env.AUTH_KEY;
 
 app.use(express.json());
 
@@ -18,10 +20,9 @@ const authMiddleware = (req, res, next) => {
 
   // 2. קבלת המפתח מה-Headers
   const authKey = req.headers["auth-key"];
-  const VALID_KEY = "mySecret123"; // את יכולה לבחור איזה ערך שבא לך
 
   // 3. אימות המפתח
-  if (authKey === VALID_KEY) {
+  if (AUTH_KEY && authKey === AUTH_KEY) {
     next(); // המפתח תקין, ממשיכים לקונטרולר
   } else {
     // מפתח שגוי או חסר - מחזירים 401
